@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffd8e9">
+<title>GOSSIP — анонимные истории</title>
+<style>
+:root{--bg:#ffd8e9;--light:#fff2f8;--pink:#f8afd0;--wine:#900035;--line:#c25b83;--ink:#240713}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--wine);font-family:Arial,Helvetica,sans-serif}
+header{height:82px;display:grid;place-items:center;background:var(--light);border-bottom:2px solid var(--line)}
+.logo{font: bold clamp(42px,5vw,58px)/1 Georgia,serif;letter-spacing:-2px}
+.rule{height:54px;border-bottom:2px solid var(--line);background:#ffe4f0}
+main{position:relative;isolation:isolate;overflow:hidden;padding:28px 22px 70px}
+.bubbles{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.b{position:absolute;width:clamp(140px,22vw,290px);aspect-ratio:1;border-radius:50%;background:var(--pink);opacity:.8}
+.b:nth-child(1){left:20%;top:-4%}.b:nth-child(2){right:13%;top:-5%;width:200px}.b:nth-child(3){right:20%;top:24%;width:280px}.b:nth-child(4){left:-7%;top:43%;width:180px}.b:nth-child(5){left:33%;top:43%;width:190px}.b:nth-child(6){right:-3%;top:57%;width:300px}.b:nth-child(7){left:6%;bottom:-12%;width:260px}.b:nth-child(8){left:48%;bottom:-12%;width:240px}
+.hero{max-width:1320px;margin:auto;min-height:510px;display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:5vw}
+h1{font-size:clamp(22px,2.5vw,33px);line-height:1.15;margin:0 0 54px;font-weight:900}
+.tagline{font:clamp(32px,4vw,52px)/1.24 Georgia,serif;text-transform:uppercase;margin:0 0 55px}
+.description{font-size:clamp(16px,1.8vw,24px);line-height:1.17;font-weight:900;max-width:590px;margin:0}
+.actions{display:grid;gap:70px}
+.big-button{border:0;background:var(--light);color:var(--wine);padding:20px 15px;min-height:145px;font-size:clamp(28px,3.6vw,48px);font-weight:900;text-transform:uppercase;box-shadow:4px 6px 8px #6c002b55;cursor:pointer;transition:transform .15s}
+.big-button:hover{transform:translateY(-3px)}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #4b001c;outline-offset:3px}
+.feed{max-width:1110px;margin:5px auto 30px;scroll-margin-top:18px}
+.feed-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+.feed-head h2{font-size:clamp(26px,2.8vw,34px);margin:0}
+.outline{border:1px solid var(--wine);background:var(--light);color:var(--wine);padding:10px 22px;font-size:17px;font-weight:900;text-transform:uppercase;cursor:pointer}
+.feed-panel{min-height:168px;background:#fff8fc;border:1px solid #ff9fc9;padding:28px;color:var(--ink);text-align:center;font:20px/1.4 Georgia,serif}
+.story-list{display:grid;gap:14px;text-align:left}
+.story{background:var(--light);border-left:4px solid var(--wine);padding:18px 20px;overflow-wrap:anywhere}
+.story p{white-space:pre-wrap;margin:0 0 12px;line-height:1.45}
+.story small{font:12px Arial,sans-serif;color:#79334f}
+.story-actions{display:flex;justify-content:flex-end;margin-top:10px}
+.report{border:0;background:transparent;color:#87304e;text-decoration:underline;cursor:pointer;font-size:12px}
+.status{font:14px Arial,sans-serif;color:#6c2843;margin:12px 0 0}
+footer{border-top:2px solid var(--line);padding:15px 22px;font-size:12px;line-height:1.5}
+.modal{position:fixed;inset:0;background:#39001899;display:none;align-items:center;justify-content:center;padding:18px;z-index:4}
+.modal.open{display:flex}
+.dialog{width:min(620px,100%);max-height:92vh;overflow:auto;background:var(--light);border:2px solid var(--wine);padding:clamp(22px,4vw,36px);position:relative;box-shadow:0 12px 30px #4b001c55}
+.dialog h2{font-size:clamp(25px,4vw,35px);text-transform:uppercase;margin:0 36px 18px 0}
+.close{position:absolute;right:12px;top:7px;background:transparent;border:0;color:var(--wine);font-size:34px;cursor:pointer}
+label{display:block;font-weight:800;margin:17px 0 8px}
+textarea,select{width:100%;font:16px Arial,sans-serif;color:var(--wine);background:#fffafd;border:1px solid var(--line);padding:13px}
+textarea{min-height:145px;resize:vertical}
+.note{font-size:13px;line-height:1.45;color:#71304a}
+.submit{width:100%;margin-top:15px;padding:15px;background:var(--wine);color:white;border:0;font-weight:900;font-size:17px;text-transform:uppercase;cursor:pointer}
+.submit:disabled{opacity:.55;cursor:wait}
+@media(max-width:760px){header{height:72px}.rule{height:28px}main{padding:24px 15px 48px}.hero{grid-template-columns:1fr;gap:25px;min-height:auto}h1{margin-bottom:34px}.tagline{margin-bottom:34px}.actions{gap:16px}.big-button{min-height:96px}.feed-head{align-items:flex-start;flex-direction:column}.feed-panel{padding:22px 14px}.b:nth-child(1){left:12%;top:8%}.b:nth-child(2){right:-15%;top:0}.b:nth-child(3){right:-20%;top:32%}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="logo">GOSSIP</div></header>
+<div class="rule" aria-hidden="true"></div>
+<main>
+ <div class="bubbles" aria-hidden="true"><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="b"></i></div>
+ <section class="hero">
+  <div>
+   <h1>БЕЗ ИМЁН. БЕЗ ЛИШНИХ ВОПРОСОВ.</h1>
+   <p class="tagline">Есть что рассказать,<br>но нельзя даже<br>подружке?</p>
+   <p class="description">СМЕШНЫЕ ИСТОРИИ, СЕКРЕТЫ И НЕЛОВКИЕ МОМЕНТЫ — РАССКАЗЫВАЙ АНОНИМНО, ЧИТАЙ БЕЗ ОСУЖДЕНИЯ.</p>
+  </div>
+  <div class="actions">
+   <button class="big-button" id="tellBtn">Рассказать<br>сплетню</button>
+   <button class="big-button" id="readBtn">Читать<br>сплетни</button>
+  </div>
+ </section>
+ <section class="feed" id="feed">
+  <div class="feed-head"><h2>НА ВИДУ У ВСЕХ</h2><button class="outline" id="refreshBtn">Анонимная лента ↻</button></div>
+  <div class="feed-panel" id="feedPanel" aria-live="polite">ЗАГРУЖАЕМ ИСТОРИИ…</div>
+  <p class="status" id="status" role="status"></p>
+ </section>
+</main>
+<footer>СЛУХИ · Анонимно — не значит безответственно. Не публикуй чужие личные данные, угрозы и травлю. Истории могут быть удалены модератором.</footer>
+<div class="modal" id="storyModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+ <div class="dialog">
+  <button class="close" id="closeModal" aria-label="Закрыть">×</button>
+  <h2 id="modalTitle">Расскажи свою историю</h2>
+  <p class="note">Не указывай настоящие имена, адреса, контакты или другие личные данные. Публикация анонимна — аккаунт не нужен.</p>
+  <form id="storyForm">
+   <label for="category">О чём история?</label>
+   <select id="category"><option>Неловкий момент</option><option>Отношения</option><option>Работа или учёба</option><option>Смешная история</option><option>Другое</option></select>
+   <label for="storyText">Твоя история</label>
+   <textarea id="storyText" maxlength="1500" required placeholder="Расскажи, что случилось…"></textarea>
+   <p class="note"><span id="charCount">0</span>/1500 символов. Не публикуй угрозы, травлю или чужие личные данные.</p>
+   <button class="submit" id="submitBtn" type="submit">Опубликовать анонимно</button>
+   <p class="note" id="formMessage" role="status"></p>
+  </form>
+ </div>
+</div>
+<script>
+(() => {
+ const modal=document.getElementById('storyModal'), form=document.getElementById('storyForm');
+ const textarea=document.getElementById('storyText'), feedPanel=document.getElementById('feedPanel');
+ const status=document.getElementById('status'), submitBtn=document.getElementById('submitBtn');
+ const api=async(path,options={})=>{
+  const response=await fetch(path,{...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});
+  const result=await response.json().catch(()=>({error:'Не удалось прочитать ответ сервера'}));
+  if(!response.ok)throw new Error(result.error||'Что-то пошло не так');
+  return result;
+ };
+ const openModal=()=>{modal.classList.add('open');document.body.style.overflow='hidden';setTimeout(()=>textarea.focus(),30)};
+ const closeModal=()=>{modal.classList.remove('open');document.body.style.overflow=''};
+ document.getElementById('tellBtn').addEventListener('click',openModal);
+ document.getElementById('closeModal').addEventListener('click',closeModal);
+ modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+ textarea.addEventListener('input',()=>document.getElementById('charCount').textContent=textarea.value.length);
+ const escText=(text)=>text; // Story text is inserted with textContent below, never interpreted as HTML.
+ function makeStory(item){
+  const article=document.createElement('article');article.className='story';
+  const p=document.createElement('p');p.textContent=item.text;
+  const meta=document.createElement('small');meta.textContent=item.category+' · АНОНИМНО · '+new Date(item.createdAt).toLocaleDateString('ru-RU');
+  const actions=document.createElement('div');actions.className='story-actions';
+  const report=document.createElement('button');report.className='report';report.textContent='Пожаловаться';
+  report.addEventListener('click',async()=>{
+   if(!confirm('Пожаловаться на эту историю?'))return;
+   try{await api('/api/stories/'+encodeURIComponent(item.id)+'/report',{method:'POST',body:JSON.stringify({reason:'Неподходящий контент'})});report.textContent='Жалоба отправлена';report.disabled=true}
+   catch(e){alert(e.message)}
+  });
+  actions.append(report);article.append(p,meta,actions);return article;
+ }
+ async function loadStories(){
+  feedPanel.textContent='ЗАГРУЖАЕМ ИСТОРИИ…';status.textContent='';
+  try{
+   const result=await api('/api/stories');
+   if(!result.stories.length){feedPanel.textContent='ПОКА ТИХО... СТАНЬ ПЕРВЫМ, КТО ПОДЕЛИТСЯ ИСТОРИЕЙ';return}
+   const list=document.createElement('div');list.className='story-list';
+   result.stories.forEach(item=>list.append(makeStory(item)));
+   feedPanel.replaceChildren(list);
+  }catch(e){feedPanel.textContent='Не удалось загрузить ленту.';status.textContent=e.message+' Если сервер ещё не запущен, смотри README.txt.'}
+ }
+ form.addEventListener('submit',async e=>{
+  e.preventDefault();const text=textarea.value.trim();
+  if(!text){textarea.focus();return}
+  submitBtn.disabled=true;submitBtn.textContent='ПУБЛИКУЕМ…';
+  document.getElementById('formMessage').textContent='';
+  try{
+   await api('/api/stories',{method:'POST',body:JSON.stringify({text,category:document.getElementById('category').value})});
+   form.reset();document.getElementById('charCount').textContent='0';closeModal();await loadStories();
+   document.getElementById('feed').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(err){document.getElementById('formMessage').textContent=err.message}
+  finally{submitBtn.disabled=false;submitBtn.textContent='Опубликовать анонимно'}
+ });
+ const goFeed=()=>{loadStories();document.getElementById('feed').scrollIntoView({behavior:'smooth',block:'start'})};
+ document.getElementById('readBtn').addEventListener('click',goFeed);
+ document.getElementById('refreshBtn').addEventListener('click',loadStories);
+ loadStories();
+})();
+</script>
+</body>
+</html>
