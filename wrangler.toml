@@ -4,6 +4,6 @@ compatibility_date = "2026-10-09"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "gossip-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_name = "gossip-stories-db"
+database_id = "91f131eb-b545-441e-92bf-0805dc34a71e"
 migrations_dir = "migrations"
